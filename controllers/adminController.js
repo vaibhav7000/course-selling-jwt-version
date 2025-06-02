@@ -1,4 +1,6 @@
 const { Admin } = require("../db/db.js");
+const jwt = require("jsonwebtoken");
+const jwtSecret = "secret123="
 
 async function addAdminToDatabase(req, res, next) {
     const username = req.body.username;
@@ -20,8 +22,23 @@ async function addAdminToDatabase(req, res, next) {
     }
 }
 
+function provideJWT(req, res) {
+    const username = req.headers["username"];
+
+    // sign the JSON with username
+    const token = jwt.sign(JSON.stringify({
+        username
+    }), jwtSecret);
+
+
+    res.status(200).json({
+        token
+    })
+}
+
 
 
 module.exports = {
-    addAdminToDatabase
+    addAdminToDatabase,
+    provideJWT
 }

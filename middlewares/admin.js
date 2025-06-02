@@ -54,7 +54,63 @@ async function adminWithSameUserNameExist(req, res, next) {
     }
 }
 
+async function adminInputValidationOtherRoutes(req, res, next) {
+    const username = req.headers["username"];
+    const password = req.headers["password"];
+
+
+    let result = adminUserNameSchema.safeParse(username)
+
+    if(!result.success) {
+        res.status(411).json({
+            msg: "admin username does not follows the input format",
+            issues: result.error.issues,
+            name: result.error.name
+        })
+        return
+    }
+
+    result = adminPasswordSchame.safeParse(password);
+
+    if(!result.success) {
+        res.status(411).json({
+            msg: "admin password does not follows the input format"
+        })
+        return
+    }
+
+    // validation done
+    next();
+}
+
+async function checkAdminExistInDatabase(req, res, next) {
+    const username = req.headers["username"];
+    const password = req.headers["password"];
+
+    // checking the username and password exist in database
+    try {
+        const response = await Admin.findOne({
+            username, password
+        })
+
+        if(!response) {
+            res.status(411).json({
+                msg: "Either username or password is incorrect"
+            })
+            return
+        }
+
+        next(); // we can no provide jwt to the admin
+    } catch(err) {
+        next(err);
+    }
+
+
+}
+
 module.exports = {
     adminInputValidationSignIn,
-    adminWithSameUserNameExist
+    adminWithSameUserNameExist,
+    adminInputValidationOtherRoutes,
+    checkAdminExistInDatabase
 }
