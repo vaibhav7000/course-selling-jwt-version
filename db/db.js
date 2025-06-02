@@ -33,7 +33,11 @@ const courseSchema = new mongoose.Schema({
     title: String,
     description: String,
     price: Number,
-    imageLink: String
+    imageLink: String,
+    owner: {
+        type: mongoose.Types.ObjectId,
+        ref: 'Admin'
+    }
 }) // Valid Mongoose types are: String, Number, Date, Boolean, Buffer, ObjectId, etc.
 
 const Course = mongoose.model('Course', courseSchema);

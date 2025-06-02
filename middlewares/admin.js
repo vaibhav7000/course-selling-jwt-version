@@ -1,5 +1,7 @@
 const z = require("zod");
+const jwt = require("jsonwebtoken");
 const { Admin } = require("../db/db");
+const { jwtSecret } = require("../constants.js")
 const adminUserNameSchema = z.string().min(3).regex(/^[A-Za-z0-9_]+$/);
 const adminPasswordSchame = z.string().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/);
 
@@ -108,9 +110,42 @@ async function checkAdminExistInDatabase(req, res, next) {
 
 }
 
+function verifyJWT(req, res, next) {
+    let token = req.headers["token"];
+
+    const tokenSchema = z.string().startsWith("Bearer ");
+
+    const result = tokenSchema.safeParse(token);
+
+    if(!result.success) {
+        res.status(403).json({
+            msg: "Your token invalid",
+        })
+
+        return
+    }
+
+    const splitToken = token.split(" ")[1];
+
+
+    // verifyJWT know
+    try {
+        const token = jwt.verify(splitToken, jwtSecret);
+        console.log(token);
+
+        next();
+    } catch(err) {
+        res.status(403).json({
+            msg: "Invalid token sent",
+        })
+    }
+    
+}
+
 module.exports = {
     adminInputValidationSignIn,
     adminWithSameUserNameExist,
     adminInputValidationOtherRoutes,
-    checkAdminExistInDatabase
+    checkAdminExistInDatabase,
+    verifyJWT
 }

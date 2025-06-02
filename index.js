@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const adminRouter = require("./routes/adminRouter.js");
-const connection_url = "mongodb+srv://vc160222:x8TOIKGv5jVJDlXV@weekthreepoint2database.tjr09d4.mongodb.net/course-selling-jwt";
+const { connection_url } = require("./constants.js");
 const port = 3000;
 const { connection } = require("./db/db.js");
 
