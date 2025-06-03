@@ -1,0 +1,61 @@
+const z = require("zod");
+const { User } = require("../db/db.js");
+const usernameSchema = z.string().trim().min(3).regex(/^[A-Za-z0-9_]+$/);
+const passwordSchema = z.string().trim().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/);
+
+function userInputValidationSignUp(req, res, next) {
+    const username = req.body.username;
+    const password = req.body.password;
+
+    let result = usernameSchema.safeParse(username);
+
+    if(!result.success) {
+        res.status(411).json({
+            msg: "Invalid usernme",
+            issues: result.error.issues
+        })
+        return
+    }
+
+    result = passwordSchema.safeParse(password);
+
+    if(!result.success) {
+        res.status(411).json({
+            msg: "Password does not fullfil the requirements",
+            issues: result.error.issues,
+            name: result.error.name
+        })
+        return
+    }
+
+    next();
+}
+
+async function checkUserNameExistInDatabase(req, res, next) {
+    const username = req.body.username;
+
+    // checking in database username exist, validation for username is done
+    try {
+        const response = await User.findOne({
+            username
+        });
+
+        if(response) {
+            res.status(411).json({
+                msg: "username already exist. Please try with different name",
+            })
+            return
+        }
+
+        next();
+    } catch(err) {
+        next(err);
+    }
+}
+
+
+
+module.exports = {
+    userInputValidationSignUp,
+    checkUserNameExistInDatabase
+}

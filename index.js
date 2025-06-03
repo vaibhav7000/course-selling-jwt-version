@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const adminRouter = require("./routes/adminRouter.js");
+const userRouter = require("./routes/userRouter.js");
 const { connection_url } = require("./constants.js");
 const port = 3000;
 const { connection } = require("./db/db.js");
@@ -11,7 +12,7 @@ app.use(express.json());
 
 app.use("/admin", adminRouter);
 
-
+app.use("/user", userRouter)
 
 
 
