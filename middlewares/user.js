@@ -1,5 +1,7 @@
 const z = require("zod");
 const { User } = require("../db/db.js");
+const jwt = require("jsonwebtoken");
+const { jwtSecret } = require("../constants.js");
 const usernameSchema = z.string().trim().min(3).regex(/^[A-Za-z0-9_]+$/);
 const passwordSchema = z.string().trim().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/);
 
@@ -102,10 +104,47 @@ async function checkUserExistInDatabase(req, res, next) {
     }
 }
 
+function verifyJWT(req, res, next) {
+    const token = req.headers["token"];
+
+    if(!token) {
+        res.status(403),json({
+            msg: "Invalid token. you are not authorized to this functionality"
+        })
+        return
+    }
+
+    // verify the token
+    const tokenSchema = z.string().startsWith("Bearer ");
+
+    let result = tokenSchema.safeParse(token);
+
+    if(!result) {
+        res.status(403),json({
+            msg: "Invalid token. you are not authorized to this functionality"
+        })
+        return
+    }
+
+    const validToken = token.split(" ")[1];
+
+    try {
+        const response = jwt.verify(validToken, jwtSecret);
+        req.id = response.id;
+        next();
+    } catch (error) {
+        res.status(403).json({
+            msg: "Invalid token. you are not authorized to this functionality"
+        })
+        return
+    }
+}
+
 
 module.exports = {
     userInputValidationSignUp,
     checkUserNameExistInDatabase,
     userInputValidationSignIn,
-    checkUserExistInDatabase
+    checkUserExistInDatabase,
+    verifyJWT
 }

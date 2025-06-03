@@ -43,7 +43,21 @@ const courseSchema = new mongoose.Schema({
 
 const Course = mongoose.model('Course', courseSchema);
 
+const enrollmentSchema = new mongoose.Schema({
+    user: {
+        type: mongoose.Types.ObjectId,
+        ref: 'User',
+        required: true
+    }, 
+    course: {
+        type: mongoose.Types.ObjectId,
+        ref: 'Course',
+        required: true
+    }
+})
 
+// enrollment model
+const Enrollment = mongoose.model('Enrollment', enrollmentSchema);
 
 
 
@@ -53,5 +67,6 @@ module.exports = {
     connection,
     Admin,
     User,
-    Course
+    Course,
+    Enrollment
 }

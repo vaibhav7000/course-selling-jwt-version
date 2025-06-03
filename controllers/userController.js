@@ -1,5 +1,6 @@
-const { User } = require("../db/db.js");
+const { User, Course, Enrollment } = require("../db/db.js");
 const { jwtSecret } = require("../constants.js");
+const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 
 async function addUserToDatabase(req, res,  next) {
@@ -35,8 +36,65 @@ function provideJWT(req, res, next) {
     })
 }
 
+async function gerAllCourses(req, res, next){
+    try {
+        const response = await Course.find()  // or Course.find({}) both provides same result // all the documents will be returned 
+
+        res.status(200).json({
+            allCourses: response
+        })
+    } catch(err) {
+        next(err);
+    }
+}
+
+
+async function purchaseCourse(req, res, next) {
+    const courseId = req.params.courseId;
+    const userId = req.id;
+
+    if(!mongoose.Types.ObjectId.isValid(courseId)) {
+        res.status(403).json({
+            msg: "Invalid course id",
+        })
+        return
+    }
+
+    // 1st find is there any course with this id
+    try {
+        const response = await Course.findById(courseId);
+
+        if(!response) {
+            res.status(403).json({
+                msg: "Invalid course id",
+            })
+            return
+        }
+
+        // course exists
+        // => making an entry in the enrollment collection
+        const purchasedCourse = new Enrollment({
+            user: userId,
+            course: courseId
+        })
+
+        try {
+            const response = await purchasedCourse.save();
+
+            res.status(200).json({
+                msg: "Course purchased"
+            })
+        } catch (error) {
+            next(error);
+        }
+    } catch (error) {
+        next(error);
+    }
+}
 
 module.exports = {
     addUserToDatabase,
-    provideJWT
+    provideJWT,
+    gerAllCourses,
+    purchaseCourse
 }
