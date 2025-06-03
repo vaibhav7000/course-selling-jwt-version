@@ -53,9 +53,59 @@ async function checkUserNameExistInDatabase(req, res, next) {
     }
 }
 
+function userInputValidationSignIn(req, res, next) {
+    const username = req.headers["username"];
+    const password = req.headers["password"];
+
+    let result = usernameSchema.safeParse(username);
+
+    if(!result.success){
+        res.status(411).json({
+            msg: "username is invalid"
+        })
+        return
+    }
+
+    result = passwordSchema.safeParse(password);
+
+    if(!result.success) {
+        res.status(411).json({
+            msg: "Password does not fullfil the requirements",
+            issues: result.error.issues,
+            name: result.error.name
+        })
+        return
+    }
+
+    next();
+}
+
+async function checkUserExistInDatabase(req, res, next) {
+    const username = req.headers["username"];
+    const password = req.headers["password"];
+
+    try {
+        const response = await User.findOne({
+            username, password
+        })
+
+        if(!response) {
+            res.status(403).json({
+                msg: "username or passowrd is incorrect"
+            })
+            return
+        }
+        req.id = response._id; // represent the id of the user
+        next();
+    } catch (error) {
+        next(error);
+    }
+}
 
 
 module.exports = {
     userInputValidationSignUp,
-    checkUserNameExistInDatabase
+    checkUserNameExistInDatabase,
+    userInputValidationSignIn,
+    checkUserExistInDatabase
 }

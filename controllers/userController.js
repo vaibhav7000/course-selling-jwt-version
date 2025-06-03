@@ -1,4 +1,6 @@
 const { User } = require("../db/db.js");
+const { jwtSecret } = require("../constants.js");
+const jwt = require("jsonwebtoken");
 
 async function addUserToDatabase(req, res,  next) {
     const username = req.body.username;
@@ -20,7 +22,21 @@ async function addUserToDatabase(req, res,  next) {
     }
 }
 
+function provideJWT(req, res, next) {
+    const username = req.headers["username"];
+    const id = req.id;
+
+    const token = jwt.sign(JSON.stringify({
+        username, id
+    }), jwtSecret);
+
+    res.status(200).json({
+        token: `Bearer ${token}`,
+    })
+}
+
 
 module.exports = {
-    addUserToDatabase
+    addUserToDatabase,
+    provideJWT
 }
