@@ -35,6 +35,7 @@ const courseSchema = new mongoose.Schema({
     price: Number,
     imageLink: String,
     owner: {
+        required: true,
         type: mongoose.Types.ObjectId,
         ref: 'Admin'
     }

@@ -18,6 +18,7 @@ app.use("/admin", adminRouter);
 // global catches
 app.use(function(err, req, res, next) {
   if(err) {
+    console.log(err);
     res.status(500).json({
       msg: "Something up with the server"
     })

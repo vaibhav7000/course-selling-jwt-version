@@ -101,7 +101,8 @@ async function checkAdminExistInDatabase(req, res, next) {
             })
             return
         }
-
+        // before provide the id of the owner
+        req.id = response._id;
         next(); // we can no provide jwt to the admin
     } catch(err) {
         next(err);
@@ -132,6 +133,8 @@ function verifyJWT(req, res, next) {
     try {
         const token = jwt.verify(splitToken, jwtSecret);
         console.log(token);
+
+        req.id = token.id;
 
         next();
     } catch(err) {

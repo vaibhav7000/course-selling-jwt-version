@@ -24,10 +24,11 @@ async function addAdminToDatabase(req, res, next) {
 
 function provideJWT(req, res) {
     const username = req.headers["username"];
+    const id = req.id
 
     // sign the JSON with username
     const token = jwt.sign(JSON.stringify({
-        username
+        username, id
     }), jwtSecret);
 
 
