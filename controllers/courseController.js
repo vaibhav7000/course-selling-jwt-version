@@ -26,6 +26,27 @@ async function addAdminCourseToDatabase(req, res, next){
     }
 }
 
+// provide all the courses of admin
+async function getAllAdminCourses(req, res) {
+    const adminId = req.id; // this we get from the jwt
+
+    // find the course collection with owner as this id
+
+    try {
+        const response = await Course.find({
+            owner: adminId,
+        }) // always an array
+        
+        res.status(200).json({
+            courses: response,
+        })
+    } catch(err) {
+        next(err);
+    }
+
+}
+
 module.exports = {
-    addAdminCourseToDatabase
+    addAdminCourseToDatabase,
+    getAllAdminCourses
 }

@@ -1,7 +1,8 @@
 const z = require("zod");
 const jwt = require("jsonwebtoken");
 const { Admin } = require("../db/db");
-const { jwtSecret } = require("../constants.js")
+const { jwtSecret } = require("../constants.js");
+const { default: mongoose } = require("mongoose");
 const adminUserNameSchema = z.string().min(3).regex(/^[A-Za-z0-9_]+$/);
 const adminPasswordSchame = z.string().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/);
 
@@ -135,6 +136,13 @@ function verifyJWT(req, res, next) {
         console.log(token);
 
         req.id = token.id;
+
+        if(!token.id || !mongoose.Types.ObjectId.isValid(token.id)) {
+            res.status(403).json({
+                msg: "You have our jwt secret, but the id inside token you provide is not correct"
+            })
+            return;
+        }
 
         next();
     } catch(err) {
