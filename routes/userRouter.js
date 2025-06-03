@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const  { userInputValidationSignUp, checkUserNameExistInDatabase, userInputValidationSignIn, checkUserExistInDatabase, verifyJWT } = require("../middlewares/user.js");
-const { addUserToDatabase, provideJWT, gerAllCourses, purchaseCourse } = require("../controllers/userController.js");
+const { addUserToDatabase, provideJWT, gerAllCourses, purchaseCourse, gerAllPurchasedCourses } = require("../controllers/userController.js");
 
 
 // signup route-handler for user
@@ -15,5 +15,8 @@ router.get("/courses", verifyJWT, gerAllCourses)
 
 // route-handler -> to purchase course
 router.post("/courses/:courseId", verifyJWT, purchaseCourse)
+
+// route-handler -> to see all the purchased courses
+router.get("/purchasedCourses", verifyJWT, gerAllPurchasedCourses)
 
 module.exports = router;

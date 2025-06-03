@@ -92,9 +92,41 @@ async function purchaseCourse(req, res, next) {
     }
 }
 
+async function gerAllPurchasedCourses(req, res, next) {
+    const userId = req.id; // got from jwt verify
+
+    // first get courseID of all the purchased courses from enrollments
+    try {
+        const allCoursesIds = await Enrollment.find({
+            user: userId
+        })
+
+        if(!allCoursesIds.length) {
+            res.status(200).json({
+                purchasedCourses: allCoursesIds
+            })
+            return
+        }
+
+        // user has purchased some courses
+        try {
+            const purchasedCourses = await Promise.all(allCoursesIds.map(course => Course.findById(course.course)));
+
+            res.status(200).json({
+                purchasedCourses
+            })
+        } catch(error) {
+            next(error);
+        }
+    } catch (error) {
+        next(error);
+    }
+}
+
 module.exports = {
     addUserToDatabase,
     provideJWT,
     gerAllCourses,
-    purchaseCourse
+    purchaseCourse,
+    gerAllPurchasedCourses
 }
